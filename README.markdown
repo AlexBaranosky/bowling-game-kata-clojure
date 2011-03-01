@@ -1,6 +1,6 @@
 # bowling-game
 
-This is the Bowling Game Kata done in Clojure with STM. The tests use Midje.  The original kata is here in Java.  http://butunclebob.com/ArticleS.UncleBob.TheBowlingGameKata
+This is the Bowling Game Kata done in Clojure with STM. The tests use Midje.  The original kata is here in Java. [Bowling Game Kata]( http://butunclebob.com/ArticleS.UncleBob.TheBowlingGameKata)
 
 ## Usage
 
