@@ -4,9 +4,9 @@ This is the Bowling Game Kata done in Clojure with STM. The tests use Midje.  Th
 
 ## Usage
 
-install Leiningen https://github.com/technomancy/leiningen
-lein deps
-lein test
+* install Leiningen <https://github.com/technomancy/leiningen>
+* lein deps
+* lein test
 
 
 ## License
