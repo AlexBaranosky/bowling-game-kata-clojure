@@ -2,8 +2,8 @@
   
 (def sum (partial reduce +))  
 
-(defrecord Frame [pins-hit-list])
-(defrecord Game [frame-list])
+(defrecord Frame [pins-hit])
+(defrecord Game [frames])
 
 (defn- construct-frame [pins]
   (Frame. [pins]))
@@ -20,10 +20,10 @@
   (reset! current-game (construct-game)))
 
 (defn rolls-in-frame [frame]
-   (count (:pins-hit-list frame)))	
+   (count (:pins-hit frame)))	
 
 (defn- sum-frame [frame]
-  (sum (:pins-hit-list frame)))
+  (sum (:pins-hit frame)))
 
 (defn- all-pins-down? [frame]
     (<= 10 (sum-frame frame)))
@@ -36,30 +36,30 @@
        (> 10 num-frames)))	   
 	   
 (defn- add-pins-to-current-frame [frame pins]
-  (let [pinlist (:pins-hit-list frame)]
+  (let [pinlist (:pins-hit frame)]
    (if (nil? pinlist)
-     (assoc frame :pins-hit-list (construct-frame pins))
-     (assoc frame :pins-hit-list (conj pinlist pins)))))
+     (assoc frame :pins-hit (construct-frame pins))
+     (assoc frame :pins-hit (conj pinlist pins)))))
 
 (defn- replace-end-of-list [list item]
   (vec (reverse (conj (rest (reverse list) ) item))))
 
-(defn- add-pins-to-frame-list [frame-list pins]
-  (let [current-frame (last frame-list)
+(defn- add-pins-to-frames [frames pins]
+  (let [current-frame (last frames)
         new-frame (construct-frame pins)
-        num-frames (count frame-list)]
+        num-frames (count frames)]
     (if (start-new-frame? current-frame num-frames)
-      (conj frame-list new-frame)
+      (conj frames new-frame)
       (replace-end-of-list
-       frame-list
+       frames
        (add-pins-to-current-frame current-frame pins)))))
 
 (defn roll [pins]
   (reset! current-game
      (assoc
         @current-game
-       :frame-list
-       (add-pins-to-frame-list (:frame-list @current-game) pins))))
+       :frames
+       (add-pins-to-frames (:frames @current-game) pins))))
 	   
 ; major duplication between this and strike?
 (defn- spare? [frame]
@@ -70,45 +70,45 @@
     (and (= 1 (rolls-in-frame frame)) 
 	     (= 10 (sum-frame frame))))
 
-(defn- next-roll-in-frame-list [[first-frame & _]]
-  (first (:pins-hit-list first-frame)))
+(defn- next-roll-in-frames [[first-frame & _]]
+  (first (:pins-hit first-frame)))
 
-(defn- next-two-rolls-in-frame-list [[first-frame next-frame & _]]
+(defn- next-two-rolls-in-frames [[first-frame next-frame & _]]
   (let [last-frame? (nil? next-frame)]
     (if last-frame?
-      (+ (first (:pins-hit-list first-frame)) (second (:pins-hit-list first-frame)))
+      (+ (first (:pins-hit first-frame)) (second (:pins-hit first-frame)))
       (if (strike? first-frame)
-       (+ 10 (first (:pins-hit-list next-frame)))
+       (+ 10 (first (:pins-hit next-frame)))
        (sum-frame first-frame)))))
 
 (defn- next-roll-in-final-frame [frame]
-  (second (:pins-hit-list frame)))
+  (second (:pins-hit frame)))
 
 (defn- next-two-rolls-in-final-frame [frame]
-  (let [roll1 (second (:pins-hit-list frame))
-        roll2 (last (:pins-hit-list frame))]
+  (let [roll1 (second (:pins-hit frame))
+        roll2 (last (:pins-hit frame))]
     (+ roll1 roll2)))
 
 (defn- score-first-frame [[first-frame & rest-frames]]
   (if (spare? first-frame)
-      (+ (sum-frame first-frame) (next-roll-in-frame-list rest-frames))
+      (+ (sum-frame first-frame) (next-roll-in-frames rest-frames))
       (if (strike? first-frame)
-        (+ (sum-frame first-frame) (next-two-rolls-in-frame-list rest-frames))
+        (+ (sum-frame first-frame) (next-two-rolls-in-frames rest-frames))
         (sum-frame first-frame))))
 
 (defn- score-last-frame [[last-frame & nada]]
-  (let [first-roll (first (:pins-hit-list last-frame))]
+  (let [first-roll (first (:pins-hit last-frame))]
     (if (spare? last-frame)
       (+ first-roll (next-roll-in-final-frame last-frame))
       (if (strike? last-frame)
         (+ first-roll (next-two-rolls-in-final-frame last-frame))
         (sum-frame last-frame)))))
 
-(defn- sum-frames [score [_ & next-frames :as frame-list]]
-  (let [num-frames-left (count frame-list)]
+(defn- sum-frames [score [_ & next-frames :as frames]]
+  (let [num-frames-left (count frames)]
     (if (= 1 num-frames-left)
-      (+ score (score-last-frame frame-list))
-      (+ score (sum-frames (score-first-frame frame-list) next-frames)))))
+      (+ score (score-last-frame frames))
+      (+ score (sum-frames (score-first-frame frames) next-frames)))))
 
 (defn score []
-  (sum-frames 0 (:frame-list @current-game)))
+  (sum-frames 0 (:frames @current-game)))
