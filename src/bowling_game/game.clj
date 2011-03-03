@@ -28,9 +28,11 @@
   (let [frame-score (sum (:pins-hit-list frame))]
     (<= 10 frame-score)))
 
+(defn rolls-in-frame [frame]
+   (count (:pins-hit-list frame)))	
+	
 (defn- all-rolls-done? [frame]
-  (let [rolls-in-frame (count (:pins-hit-list frame))]
-    (<= 2 rolls-in-frame)))
+    (<= 2 (rolls-in-frame frame)))
 	
 (defn- start-new-frame? [frame num-frames]
   (and (or (all-pins-down? frame) (all-rolls-done? frame))
@@ -62,19 +64,17 @@
        :frame-list
        (add-pins-to-frame-list (:frame-list @current-game) pins))))
 
-(defn- spare? [frame]
-  (let [frame-score (sum (:pins-hit-list frame))
-        try-count (count (:pins-hit-list frame))]
-    (and (= 2 try-count) (= 10 frame-score))))
-
-(defn- strike? [frame]
-  (let [frame-score (sum (:pins-hit-list frame))
-        try-count (count (:pins-hit-list frame))]
-    (and (= 1 try-count) 
-	     (= 10 frame-score))))
-
 (defn- sum-frame [frame]
   (sum (:pins-hit-list frame)))
+	   
+; major duplication between this and strike?
+(defn- spare? [frame]
+    (and (= 2 (rolls-in-frame frame)) 
+	     (= 10 (sum-frame frame))))
+
+(defn- strike? [frame]
+    (and (= 1 (rolls-in-frame frame)) 
+	     (= 10 (sum-frame frame))))
 
 (defn- next-roll-in-frame-list [[first-frame & _]]
   (first (:pins-hit-list first-frame)))
