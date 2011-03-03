@@ -42,8 +42,13 @@
      (assoc frame :pins-hit (construct-frame pins))
      (assoc frame :pins-hit (conj pinlist pins)))))
 
+(defn- add-pins-to-current-frame [frame pins]
+  (if-let [pinlist (:pins-hit frame)]
+    (assoc frame :pins-hit (conj pinlist pins))
+    (assoc frame :pins-hit (construct-frame pins))))	 
+	 
 (defn- replace-end-of-list [list item]
-  (vec (reverse (conj (rest (reverse list) ) item))))
+  (vec (reverse (conj (rest (reverse list)) item))))
 
 (defn- add-pins-to-frames [frames pins]
   (let [current-frame (last frames)
@@ -62,7 +67,7 @@
        :frames
        (add-pins-to-frames (:frames @current-game) pins))))
 	
-(defn score-for-frame-is-10-and-on-roll-x? [rolls-already-rolled frame]
+(defn- score-for-frame-is-10-and-on-roll-x? [rolls-already-rolled frame]
     (and (= rolls-already-rolled (rolls-in-frame frame)) 
 	     (= 10 (sum-frame frame))))
 	
@@ -90,11 +95,12 @@
     (+ roll1 roll2)))
 
 (defn- score-first-frame [[first-frame & rest-frames]]
-  (if (spare? first-frame)
-      (+ (sum-frame first-frame) (next-roll-in-frames rest-frames))
-      (if (strike? first-frame)
+  (cond (spare? first-frame)
+        (+ (sum-frame first-frame) (next-roll-in-frames rest-frames))
+      (strike? first-frame)
         (+ (sum-frame first-frame) (next-two-rolls-in-frames rest-frames))
-        (sum-frame first-frame))))
+      :else  
+	  (sum-frame first-frame)))
 
 (defn- score-last-frame [last-frame]
   (let [first-roll (first (:pins-hit last-frame))]
