@@ -35,12 +35,6 @@
 (defn- start-new-frame? [frame num-frames]
   (and (or (all-pins-down? frame) (all-rolls-done? frame))
        (> 10 num-frames)))	   
-	   
-(defn- add-pins-to-current-frame [frame pins]
-  (let [pinlist (:pins-hit frame)]
-   (if (nil? pinlist)
-     (assoc frame :pins-hit (construct-frame pins))
-     (assoc frame :pins-hit (conj pinlist pins)))))
 
 (defn- add-pins-to-current-frame [frame pins]
   (if-let [pinlist (:pins-hit frame)]
