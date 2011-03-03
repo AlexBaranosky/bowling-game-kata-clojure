@@ -1,4 +1,6 @@
 (ns bowling-game.game)
+  
+(def sum (partial reduce +))  
 
 (defrecord Frame [pins-hit-list])
 (defrecord Game [frame-list])
@@ -18,12 +20,12 @@
   (reset! current-game (construct-game)))
 
 (defn- all-pins-down-old? [frame]
-  (let [frame-score (reduce + (:pins-hit-list frame))]
+  (let [frame-score (sum (:pins-hit-list frame))]
     (and (not (nil? frame-score) 
 	     (<= 10 frame-score)))))
 
 (defn- all-pins-down? [frame]
-  (let [frame-score (reduce + (:pins-hit-list frame))]
+  (let [frame-score (sum (:pins-hit-list frame))]
     (<= 10 frame-score)))
 
 (defn- all-rolls-done? [frame]
@@ -61,18 +63,18 @@
        (add-pins-to-frame-list (:frame-list @current-game) pins))))
 
 (defn- spare? [frame]
-  (let [frame-score (reduce + (:pins-hit-list frame))
+  (let [frame-score (sum (:pins-hit-list frame))
         try-count (count (:pins-hit-list frame))]
     (and (= 2 try-count) (= 10 frame-score))))
 
 (defn- strike? [frame]
-  (let [frame-score (reduce + (:pins-hit-list frame))
+  (let [frame-score (sum (:pins-hit-list frame))
         try-count (count (:pins-hit-list frame))]
     (and (= 1 try-count) 
 	     (= 10 frame-score))))
 
 (defn- sum-frame [frame]
-  (reduce + (:pins-hit-list frame)))
+  (sum (:pins-hit-list frame)))
 
 (defn- next-roll-in-frame-list [frames]
   (first (:pins-hit-list (first frames))))
@@ -113,15 +115,17 @@
         (+ first-roll (next-two-rolls-in-final-frame last-frame))
         (sum-frame last-frame)))))
 
-(defn- sum-frames [score frame-list]
-  (let [num-frames (count frame-list)
-        next-frames (rest frame-list)]
-    (if (= 1 num-frames)
+(defn- sum-frames [score [_ & next-frames :as frame-list]]
+  (let [num-frames-left (count frame-list)]
+    (if (= 1 num-frames-left)
       (+ score (score-last-frame frame-list))
       (+ score (sum-frames (score-first-frame frame-list) next-frames)))))
 
 (defn score []
   (sum-frames 0 (:frame-list @current-game)))
+  
+;(defn score []
+;   (sum ))
 
 
 
