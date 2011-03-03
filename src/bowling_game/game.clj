@@ -1,4 +1,5 @@
-(ns bowling-game.game)
+(ns bowling-game.game
+  (:use clojure.contrib.def))
   
 (def sum (partial reduce +))  
 
@@ -14,7 +15,7 @@
 (defn- construct-game []
   (Game. [(construct-empty-frame)]))
 
-(def current-game (atom (construct-game)))
+(defvar- current-game (atom (construct-game)))
 
 (defn new-game []
   (reset! current-game (construct-game)))
@@ -26,10 +27,10 @@
   (sum (:pins-hit frame)))
 
 (defn- all-pins-down? [frame]
-    (<= 10 (sum-frame frame)))
+    (= 10 (sum-frame frame)))
   
 (defn- all-rolls-done? [frame]
-    (<= 2 (rolls-in-frame frame)))
+    (= 2 (rolls-in-frame frame)))
 	
 (defn- start-new-frame? [frame num-frames]
   (and (or (all-pins-down? frame) (all-rolls-done? frame))
@@ -60,15 +61,14 @@
         @current-game
        :frames
        (add-pins-to-frames (:frames @current-game) pins))))
-	   
-; major duplication between this and strike?
-(defn- spare? [frame]
-    (and (= 2 (rolls-in-frame frame)) 
+	
+(defn score-for-frame-is-10-and-on-roll-x? [rolls-already-rolled frame]
+    (and (= rolls-already-rolled (rolls-in-frame frame)) 
 	     (= 10 (sum-frame frame))))
+	
+(defvar- spare? (partial score-for-frame-is-10-and-on-roll-x? 2))
 
-(defn- strike? [frame]
-    (and (= 1 (rolls-in-frame frame)) 
-	     (= 10 (sum-frame frame))))
+(defvar- strike? (partial score-for-frame-is-10-and-on-roll-x? 1))
 
 (defn- next-roll-in-frames [[first-frame & _]]
   (first (:pins-hit first-frame)))
