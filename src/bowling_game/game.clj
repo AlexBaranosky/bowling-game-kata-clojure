@@ -76,13 +76,11 @@
 (defn- sum-frame [frame]
   (sum (:pins-hit-list frame)))
 
-(defn- next-roll-in-frame-list [frames]
-  (first (:pins-hit-list (first frames))))
+(defn- next-roll-in-frame-list [[first-frame & _]]
+  (first (:pins-hit-list first-frame)))
 
-(defn- next-two-rolls-in-frame-list [frames]
-  (let [first-frame (first frames)
-        next-frame (first (rest frames))
-        last-frame? (nil? next-frame)]
+(defn- next-two-rolls-in-frame-list [[first-frame next-frame & _]]
+  (let [last-frame? (nil? next-frame)]
     (if last-frame?
       (+ (first (:pins-hit-list first-frame)) (second (:pins-hit-list first-frame)))
       (if (strike? first-frame)
@@ -97,11 +95,11 @@
         roll2 (last (:pins-hit-list frame))]
     (+ roll1 roll2)))
 
-(defn- score-first-frame [[first-frame & next-frames]]
+(defn- score-first-frame [[first-frame & rest-frames]]
   (if (spare? first-frame)
-      (+ (sum-frame first-frame) (next-roll-in-frame-list next-frames))
+      (+ (sum-frame first-frame) (next-roll-in-frame-list rest-frames))
       (if (strike? first-frame)
-        (+ (sum-frame first-frame) (next-two-rolls-in-frame-list next-frames))
+        (+ (sum-frame first-frame) (next-two-rolls-in-frame-list rest-frames))
         (sum-frame first-frame))))
 
 (defn- score-last-frame [[last-frame & nada]]
