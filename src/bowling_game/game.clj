@@ -19,11 +19,6 @@
 (defn new-game []
   (reset! current-game (construct-game)))
 
-(defn- all-pins-down-old? [frame]
-  (let [frame-score (sum (:pins-hit-list frame))]
-    (and (not (nil? frame-score) 
-	     (<= 10 frame-score)))))
-
 (defn- all-pins-down? [frame]
   (let [frame-score (sum (:pins-hit-list frame))]
     (<= 10 frame-score)))
@@ -118,7 +113,3 @@
 
 (defn score []
   (sum-frames 0 (:frame-list @current-game)))
-
-
-
-
