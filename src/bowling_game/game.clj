@@ -19,7 +19,7 @@
 (defn new-game []
   (reset! current-game (construct-game)))
 
-(defn rolls-in-frame [frame]
+(defn- rolls-in-frame [frame]
    (count (:pins-hit frame)))	
 
 (defn- sum-frame [frame]
@@ -96,7 +96,7 @@
         (+ (sum-frame first-frame) (next-two-rolls-in-frames rest-frames))
         (sum-frame first-frame))))
 
-(defn- score-last-frame [[last-frame & nada]]
+(defn- score-last-frame [last-frame]
   (let [first-roll (first (:pins-hit last-frame))]
     (if (spare? last-frame)
       (+ first-roll (next-roll-in-final-frame last-frame))
@@ -104,11 +104,11 @@
         (+ first-roll (next-two-rolls-in-final-frame last-frame))
         (sum-frame last-frame)))))
 
-(defn- sum-frames [score [_ & next-frames :as frames]]
+(defn- sum-frames [score [first-frame & rest-frames :as frames]]
   (let [num-frames-left (count frames)]
     (if (= 1 num-frames-left)
-      (+ score (score-last-frame frames))
-      (+ score (sum-frames (score-first-frame frames) next-frames)))))
+      (+ score (score-last-frame first-frame))
+      (+ score (sum-frames (score-first-frame frames) rest-frames)))))
 
 (defn score []
   (sum-frames 0 (:frames @current-game)))
