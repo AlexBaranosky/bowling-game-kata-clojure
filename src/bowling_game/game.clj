@@ -60,12 +60,12 @@
        :frame-list
        (add-pins-to-frame-list (:frame-list @current-game) pins))))
 
-(defn- is-spare? [frame]
+(defn- spare? [frame]
   (let [frame-score (reduce + (:pins-hit-list frame))
         try-count (count (:pins-hit-list frame))]
     (and (= 2 try-count) (= 10 frame-score))))
 
-(defn- is-strike? [frame]
+(defn- strike? [frame]
   (let [frame-score (reduce + (:pins-hit-list frame))
         try-count (count (:pins-hit-list frame))]
     (and (= 1 try-count) 
@@ -74,23 +74,23 @@
 (defn- sum-frame [frame]
   (reduce + (:pins-hit-list frame)))
 
-(defn- get-next-roll-in-frame-list [frames]
+(defn- next-roll-in-frame-list [frames]
   (first (:pins-hit-list (first frames))))
 
-(defn- get-next-two-rolls-in-frame-list [frames]
+(defn- next-two-rolls-in-frame-list [frames]
   (let [first-frame (first frames)
         next-frame (first (rest frames))
         last-frame? (nil? next-frame)]
     (if last-frame?
       (+ (first (:pins-hit-list first-frame)) (first (next (:pins-hit-list first-frame))))
-      (if (is-strike? first-frame)
+      (if (strike? first-frame)
        (+ 10 (first (:pins-hit-list next-frame)))
        (sum-frame first-frame)))))
 
-(defn- get-next-roll-in-final-frame [frame]
+(defn- next-roll-in-final-frame [frame]
   (first (next (:pins-hit-list frame))))
 
-(defn- get-next-two-rolls-in-final-frame [frame]
+(defn- next-two-rolls-in-final-frame [frame]
   (let [roll1 (first (next (:pins-hit-list frame)))
         roll2 (last (:pins-hit-list frame))]
     (+ roll1 roll2)))
@@ -98,19 +98,19 @@
 (defn- score-first-frame [frames]
   (let [first-frame (first frames)
         next-frames (rest frames)]
-    (if (is-spare? first-frame)
-      (+ (sum-frame first-frame) (get-next-roll-in-frame-list next-frames))
-      (if (is-strike? first-frame)
-        (+ (sum-frame first-frame) (get-next-two-rolls-in-frame-list next-frames))
+    (if (spare? first-frame)
+      (+ (sum-frame first-frame) (next-roll-in-frame-list next-frames))
+      (if (strike? first-frame)
+        (+ (sum-frame first-frame) (next-two-rolls-in-frame-list next-frames))
         (sum-frame first-frame)))))
 
 (defn- score-last-frame [frames]
   (let [last-frame (first frames)
         first-roll (first (:pins-hit-list (first frames)))]
-    (if (is-spare? last-frame)
-      (+ first-roll (get-next-roll-in-final-frame last-frame))
-      (if (is-strike? last-frame)
-        (+ first-roll (get-next-two-rolls-in-final-frame last-frame))
+    (if (spare? last-frame)
+      (+ first-roll (next-roll-in-final-frame last-frame))
+      (if (strike? last-frame)
+        (+ first-roll (next-two-rolls-in-final-frame last-frame))
         (sum-frame last-frame)))))
 
 (defn- sum-frames [score, frame-list]
