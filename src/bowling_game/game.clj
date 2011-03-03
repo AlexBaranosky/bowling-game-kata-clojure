@@ -97,18 +97,15 @@
         roll2 (last (:pins-hit-list frame))]
     (+ roll1 roll2)))
 
-(defn- score-first-frame [frames]
-  (let [first-frame (first frames)
-        next-frames (rest frames)]
-    (if (spare? first-frame)
+(defn- score-first-frame [[first-frame & next-frames]]
+  (if (spare? first-frame)
       (+ (sum-frame first-frame) (next-roll-in-frame-list next-frames))
       (if (strike? first-frame)
         (+ (sum-frame first-frame) (next-two-rolls-in-frame-list next-frames))
-        (sum-frame first-frame)))))
+        (sum-frame first-frame))))
 
-(defn- score-last-frame [frames]
-  (let [last-frame (first frames)
-        first-roll (first (:pins-hit-list (first frames)))]
+(defn- score-last-frame [[last-frame & nada]]
+  (let [first-roll (first (:pins-hit-list last-frame))]
     (if (spare? last-frame)
       (+ first-roll (next-roll-in-final-frame last-frame))
       (if (strike? last-frame)
@@ -123,9 +120,6 @@
 
 (defn score []
   (sum-frames 0 (:frame-list @current-game)))
-  
-;(defn score []
-;   (sum ))
 
 
 
