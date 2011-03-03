@@ -19,13 +19,15 @@
 (defn new-game []
   (reset! current-game (construct-game)))
 
-(defn- all-pins-down? [frame]
-  (let [frame-score (sum (:pins-hit-list frame))]
-    (<= 10 frame-score)))
-
 (defn rolls-in-frame [frame]
    (count (:pins-hit-list frame)))	
-	
+
+(defn- sum-frame [frame]
+  (sum (:pins-hit-list frame)))
+
+(defn- all-pins-down? [frame]
+    (<= 10 (sum-frame frame)))
+  
 (defn- all-rolls-done? [frame]
     (<= 2 (rolls-in-frame frame)))
 	
@@ -58,9 +60,6 @@
         @current-game
        :frame-list
        (add-pins-to-frame-list (:frame-list @current-game) pins))))
-
-(defn- sum-frame [frame]
-  (sum (:pins-hit-list frame)))
 	   
 ; major duplication between this and strike?
 (defn- spare? [frame]
