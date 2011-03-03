@@ -70,12 +70,12 @@
 (defn- next-roll-in-frames [[first-frame & _]]
   (first (:pins-hit first-frame)))
 
-(defn- next-two-rolls-in-frames [[first-frame next-frame & _]]
+(defn- next-two-rolls-in-frames [[first-frame next-frame & _ :as frames]]
   (let [last-frame? (nil? next-frame)]
     (cond last-frame?
-         (+ (first (:pins-hit first-frame)) (second (:pins-hit first-frame)))
+         (+ (next-roll-in-frames frames) (second (:pins-hit first-frame)))
          (strike? first-frame)
-         (+ 10 (first (:pins-hit next-frame)))
+         (+ 10 (next-roll-in-frames frames))
 		 :else
          (sum-frame first-frame))))
 
