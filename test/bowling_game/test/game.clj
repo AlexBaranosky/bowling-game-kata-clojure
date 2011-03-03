@@ -15,6 +15,9 @@
   (do
     (roll 10)))
 
+(deftest replaceLastElementWithGivenElement
+  (fact (replace-last [1 2 3] 44) => [1 2 44]))
+	
 (deftest testGutterGame
   (do
     (new-game)

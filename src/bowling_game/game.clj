@@ -40,17 +40,16 @@
   (if-let [pinlist (:pins-hit frame)]
     (assoc frame :pins-hit (conj pinlist pins))
     (assoc frame :pins-hit (construct-frame pins))))	 
-	 
-(defn- replace-end-of-list [list item]
-  (vec (reverse (conj (rest (reverse list)) item))))
+
+(defn replace-last [seq item]
+  (conj (vec (drop-last 1 seq)) item))
 
 (defn- add-pins-to-frames [frames pins]
   (let [current-frame (last frames)
-        new-frame (construct-frame pins)
         num-frames (count frames)]
     (if (start-new-frame? current-frame num-frames)
-      (conj frames new-frame)
-      (replace-end-of-list
+      (conj frames (construct-frame pins))
+      (replace-last
        frames
        (add-pins-to-current-frame current-frame pins)))))
 
