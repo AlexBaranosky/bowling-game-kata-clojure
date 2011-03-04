@@ -87,8 +87,6 @@
         (+ score (next-two-rolls-in-frames rest-frames))
         :else  
 	    score)))
-	
-(defvar- next-roll-in-last-frame (comp second :rolls))
 	  
 (defn- score-last-frame [frame]
     (cond (spare? frame)
