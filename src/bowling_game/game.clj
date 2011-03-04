@@ -56,12 +56,11 @@
        (add-roll-to-frame current-frame pins-hit-in-roll)))))
 
 (defn roll [pins-knocked-down]
-  (reset! current-game
-     (assoc
-        @current-game
-       :frames
-       (add-roll-to (:frames @current-game) pins-knocked-down))))
-	
+  (swap! current-game 
+         assoc 
+        :frames 
+		(add-roll-to (:frames @current-game) pins-knocked-down)))	
+
 (defn- all-pins-down-and-on-nth-roll? [nth-roll frame]
     (and (all-pins-down? frame)
 	     (= (rolls-already-completed frame) nth-roll)))
@@ -70,7 +69,7 @@
 
 (defvar- strike? (partial all-pins-down-and-on-nth-roll? 1))
 
-(defn- next-two-rolls-in-frames [[current-frame next-frame & _ :as frames]]
+(defn- next-two-rolls-in-frames [[current-frame next-frame]]
   (let [last-frame? (nil? next-frame)]
     (cond last-frame?
          (+ (first-roll current-frame) (second-roll current-frame))
