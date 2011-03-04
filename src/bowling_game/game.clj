@@ -26,6 +26,8 @@
 
 (defvar- second-roll (comp second :pins-hit)) 
 
+(defvar- third-roll (comp last :pins-hit)) 
+
 (defvar- pins-knocked-down (comp sum :pins-hit))
 
 (defvar- all-pins-down? (comp (partial = 10) pins-knocked-down))
@@ -88,10 +90,10 @@
         :else  
 	    score)))
 	
-(defvar- next-roll-in-last-frame (comp first :pins-hit))
+(defvar- next-roll-in-last-frame (comp second :pins-hit))
 
 (defn- next-two-rolls-in-last-frame [frame]
-  (+ (first-roll frame) (second-roll frame)))	
+  (+ (second-roll frame) (third-roll frame)))	
 	  
 (defn- score-last-frame [frame]
     (cond (spare? frame)
