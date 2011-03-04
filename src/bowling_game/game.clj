@@ -3,6 +3,9 @@
   
 (def sum (partial reduce +))
 
+(defn- replace-last [seq item]
+  (conj (vec (drop-last 1 seq)) item))
+
 (defrecord Frame [rolls])
   
 (defn- construct-frame [pins]
@@ -33,27 +36,24 @@
 
 (defvar- all-pins-down? (comp (partial = 10) pins-knocked-down))
   
-(defvar- all-rolls-done? (comp (partial = 2) rolls-already-completed))
-	
-(defn- start-new-frame? [frame num-frames]
-  (and (or (all-pins-down? frame) (all-rolls-done? frame))
-       (> 10 num-frames)))	   
+(defvar- all-rolls-done? (comp (partial = 2) rolls-already-completed))   
 
-(defn- add-roll-to-current-frame [frame pins-hit-in-roll]
+(defn- add-roll-to-frame [frame pins-hit-in-roll]
   (if-let [rolls (:rolls frame)]
     (assoc frame :rolls (conj rolls pins-hit-in-roll))
     (assoc frame :rolls (construct-frame pins-hit-in-roll))))	 
-
-(defn- replace-last [seq item]
-  (conj (vec (drop-last 1 seq)) item))
-
+	
+(defn- start-new-frame? [frame num-frames]
+  (and (or (all-pins-down? frame) (all-rolls-done? frame))
+       (> 10 num-frames)))	
+	   
 (defn- add-roll-to [frames pins-hit-in-roll]
   (let [current-frame (last frames)]
     (if (start-new-frame? current-frame (count frames))
       (conj frames (construct-frame pins-hit-in-roll))
       (replace-last
        frames
-       (add-roll-to-current-frame current-frame pins-hit-in-roll)))))
+       (add-roll-to-frame current-frame pins-hit-in-roll)))))
 
 (defn roll [pins-knocked-down]
   (reset! current-game
