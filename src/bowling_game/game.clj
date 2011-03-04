@@ -22,6 +22,8 @@
 
 (defvar- rolls-in-frame (comp count :pins-hit))	
 
+(defvar- first-roll (comp first :pins-hit))	  
+
 (defvar- sum-frame (comp sum :pins-hit))
 
 (defvar- all-pins-down? (comp (partial = 10) sum-frame))
@@ -82,28 +84,26 @@
         roll2 (last (:pins-hit frame))]
     (+ roll1 roll2)))
 
-(defn- score-first-frame [[first-frame & rest-frames]]
+(defn- score-current-frame [[first-frame & rest-frames]]
   (cond (spare? first-frame)
         (+ (sum-frame first-frame) (next-roll-in-frames rest-frames))
       (strike? first-frame)
         (+ (sum-frame first-frame) (next-two-rolls-in-frames rest-frames))
       :else  
 	  (sum-frame first-frame)))
-
-(defn- score-last-frame [last-frame]
-  (let [first-roll (first (:pins-hit last-frame))]
-    (cond (spare? last-frame)
-          (+ first-roll (next-roll-in-final-frame last-frame))
-          (strike? last-frame)
-          (+ first-roll (next-two-rolls-in-final-frame last-frame))
+	  
+(defn- score-last-frame [frame]
+    (cond (spare? frame)
+          (+ (first-roll frame) (next-roll-in-final-frame frame))
+          (strike? frame)
+          (+ (first-roll frame) (next-two-rolls-in-final-frame frame))
 		  :else
-          (sum-frame last-frame))))
+          (sum-frame frame)))
 
-(defn- sum-frames [score [first-frame & rest-frames :as frames]]
-  (let [num-frames-left (count frames)]
-    (if (= 1 num-frames-left)
+(defn- sum-frames [score [first-frame & rest-frames :as frames-left]]
+    (if (= 1 (count frames-left))
       (+ score (score-last-frame first-frame))
-      (+ score (sum-frames (score-first-frame frames) rest-frames)))))
+      (+ score (sum-frames (score-current-frame frames-left) rest-frames))))
 
 (defn score []
   (sum-frames 0 (:frames @current-game)))
