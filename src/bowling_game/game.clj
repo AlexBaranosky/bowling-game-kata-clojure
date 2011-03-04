@@ -24,11 +24,9 @@
 
 (defvar- sum-frame (comp sum :pins-hit))
 
-(defn- all-pins-down? [frame]
-    (= 10 (sum-frame frame)))
+(defvar- all-pins-down? (comp (partial = 10) sum-frame))
   
-(defn- all-rolls-done? [frame]
-    (= 2 (rolls-in-frame frame)))
+(defvar- all-rolls-done? (comp (partial = 2) rolls-in-frame))
 	
 (defn- start-new-frame? [frame num-frames]
   (and (or (all-pins-down? frame) (all-rolls-done? frame))
