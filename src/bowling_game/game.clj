@@ -89,15 +89,12 @@
 	    score)))
 	
 (defvar- next-roll-in-last-frame (comp second :rolls))
-
-(defn- next-two-rolls-in-last-frame [frame]
-  (+ (second-roll frame) (third-roll frame)))	
 	  
 (defn- score-last-frame [frame]
     (cond (spare? frame)
-          (+ (first-roll frame) (next-roll-in-last-frame frame))
+          (+ (first-roll frame) (second-roll frame))
           (strike? frame)
-          (+ (first-roll frame) (next-two-rolls-in-last-frame frame))
+          (+ (first-roll frame) (second-roll frame) (third-roll frame))
 		  :else
           (pins-knocked-down frame)))
 
