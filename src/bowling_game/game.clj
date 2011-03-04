@@ -20,11 +20,9 @@
 (defn new-game []
   (reset! current-game (construct-game)))
 
-(defn- rolls-in-frame [frame]
-   (count (:pins-hit frame)))	
+(defvar- rolls-in-frame (comp count :pins-hit))	
 
-(defn- sum-frame [frame]
-  (sum (:pins-hit frame)))
+(defvar- sum-frame (comp sum :pins-hit))
 
 (defn- all-pins-down? [frame]
     (= 10 (sum-frame frame)))
@@ -79,8 +77,7 @@
 		 :else
          (sum-frame first-frame))))
 
-(defn- next-roll-in-final-frame [frame]
-  (second (:pins-hit frame)))
+(defvar- next-roll-in-final-frame (comp second :pins-hit))
 
 (defn- next-two-rolls-in-final-frame [frame]
   (let [roll1 (second (:pins-hit frame))
