@@ -80,13 +80,13 @@
          (pins-knocked-down current-frame))))
 
 (defn- score-current-frame [[current-frame & rest-frames]]
-  (let [score (pins-knocked-down current-frame)]
+  (let [pins-knocked-down (pins-knocked-down current-frame)]
      (cond (spare? current-frame)
-        (+ score (first-roll (first rest-frames)))
+        (+ pins-knocked-down (first-roll (first rest-frames)))
         (strike? current-frame)
-        (+ score (next-two-rolls-in-frames rest-frames))
+        (+ pins-knocked-down (next-two-rolls-in-frames rest-frames))
         :else  
-	    score)))
+	    pins-knocked-down)))
 	  
 (defn- score-last-frame [frame]
     (cond (spare? frame)
