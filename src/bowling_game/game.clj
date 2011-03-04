@@ -1,20 +1,21 @@
 (ns bowling-game.game
   (:use clojure.contrib.def))
   
-(def sum (partial reduce +))  
+(def sum (partial reduce +))
 
 (defrecord Frame [pins-hit])
-(defrecord Game [frames])
-
+  
 (defn- construct-frame [pins]
   (Frame. [pins]))
 
 (defn- construct-empty-frame []
   (Frame. []))
 
+(defrecord Game [frames])
+
 (defn- construct-game []
   (Game. [(construct-empty-frame)]))
-
+  
 (defvar- current-game (atom (construct-game)))
 
 (defn new-game []
@@ -46,20 +47,20 @@
 (defn- replace-last [seq item]
   (conj (vec (drop-last 1 seq)) item))
 
-(defn- add-pins-to-frames [frames pins]
+(defn- add-roll-to [frames pins-knocked-down]
   (let [current-frame (last frames)]
     (if (start-new-frame? current-frame (count frames))
-      (conj frames (construct-frame pins))
+      (conj frames (construct-frame pins-knocked-down))
       (replace-last
        frames
-       (add-pins-to-current-frame current-frame pins)))))
+       (add-pins-to-current-frame current-frame pins-knocked-down)))))
 
-(defn roll [pins]
+(defn roll [pins-knocked-down]
   (reset! current-game
      (assoc
         @current-game
        :frames
-       (add-pins-to-frames (:frames @current-game) pins))))
+       (add-roll-to (:frames @current-game) pins-knocked-down))))
 	
 (defn- score-for-frame-is-10-and-on-roll-x? [rolls-already-rolled frame]
     (and (= rolls-already-rolled (rolls-already-completed frame)) 
