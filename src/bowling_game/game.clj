@@ -70,23 +70,23 @@
 
 (defvar- strike? (partial all-pins-down-and-on-nth-roll? 1))
 
-(defn- next-roll-in-frames [[first-frame & _]]
-  (first-roll first-frame))
+(defn- next-roll-in-frames [[current-frame & _]]
+  (first-roll current-frame))
 
-(defn- next-two-rolls-in-frames [[first-frame next-frame & _ :as frames]]
+(defn- next-two-rolls-in-frames [[current-frame next-frame & _ :as frames]]
   (let [last-frame? (nil? next-frame)]
     (cond last-frame?
-         (+ (next-roll-in-frames frames) (second-roll first-frame))
-         (strike? first-frame)
+         (+ (next-roll-in-frames frames) (second-roll current-frame))
+         (strike? current-frame)
          (+ 10 (next-roll-in-frames frames))
 		 :else
-         (pins-knocked-down first-frame))))
+         (pins-knocked-down current-frame))))
 
-(defn- score-current-frame [[first-frame & rest-frames]]
-  (let [score (pins-knocked-down first-frame)]
-     (cond (spare? first-frame)
+(defn- score-current-frame [[current-frame & rest-frames]]
+  (let [score (pins-knocked-down current-frame)]
+     (cond (spare? current-frame)
         (+ score (next-roll-in-frames rest-frames))
-        (strike? first-frame)
+        (strike? current-frame)
         (+ score (next-two-rolls-in-frames rest-frames))
         :else  
 	    score)))
@@ -104,9 +104,9 @@
 		  :else
           (pins-knocked-down frame)))
 
-(defn- score-frames [score [first-frame & rest-frames :as frames-left]]
+(defn- score-frames [score [current-frame & rest-frames :as frames-left]]
     (if (= 1 (count frames-left))
-      (+ score (score-last-frame first-frame))
+      (+ score (score-last-frame current-frame))
       (+ score (score-frames (score-current-frame frames-left) rest-frames))))
 
 (defn score []
